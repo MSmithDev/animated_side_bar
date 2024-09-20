@@ -66,7 +66,6 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
   bool _minimize = false;
   late AnimationController _animationController;
   late Animation<double> _floating;
-  // late Timer _counterTimer;
 
   @override
   void initState() {
@@ -86,36 +85,15 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
 
   @override
   void dispose() {
-    // _counterTimer.cancel();
     super.dispose();
   }
 
   ///Animation creator function
   void moveToNewIndex(int index) {
-    // setState(() {
-    // _counterTimer.cancel();
-    // });
-
-    ///Timer removed to make it one time animation for better performance
-    // _counterTimer = Timer.periodic(
-    //   Duration(
-    //       milliseconds: widget.floatingAnimationDuration.inMilliseconds ~/ 10),
-    //       (Timer timer) {
-    // if (_itemIndex.round() == index) {
-    ///here when we reach the index then we stop because we hit the targeted index
     setState(() {
       _itemIndex = index.toDouble();
-      // timer.cancel();
-      // _counterTimer.cancel();
     });
     widget.onTap?.call(index);
-    // } else if (_itemIndex.floor() < index) {
-    //   setState(() => _itemIndex += 1);
-    // } else {
-    //   setState(() => _itemIndex -= 1);
-    // }
-    //   },
-    // );
   }
 
   @override
@@ -178,9 +156,9 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
                                 splashColor: widget.splashColor,
                                 highlightColor: widget.highlightColor,
                                 width: _width,
-                                icon:
-                                    widget.sidebarItems[index].iconUnselected ??
-                                        widget.sidebarItems[index].iconSelected,
+                                image: widget.sidebarItems[index]
+                                        .imageUnselected ??
+                                    widget.sidebarItems[index].imageSelected,
                                 text: widget.sidebarItems[index].text,
                                 onTap: () => moveToNewIndex(index));
                           },
@@ -215,14 +193,16 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
                               clipBehavior: Clip.antiAliasWithSaveLayer,
                               scrollDirection: Axis.horizontal,
                               children: [
-                                Icon(
-                                  widget.sidebarItems[_itemIndex.floor()]
-                                      .iconSelected,
+                                ImageIcon(
+                                  AssetImage(widget.sidebarItems[
+                                          _itemIndex.floor()]
+                                      .imageSelected),
                                   color: Colors.white,
                                 ),
                                 if (_width >= widget.widthSwitch && !_minimize)
                                   Padding(
-                                    padding: const EdgeInsets.only(left: 12.0),
+                                    padding:
+                                        const EdgeInsets.only(left: 12.0),
                                     child: Text(
                                       widget.sidebarItems[_itemIndex.floor()]
                                           .text,
@@ -243,7 +223,8 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
           ),
           if (_width >= widget.widthSwitch)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
               child: IconButton(
                   hoverColor: Colors.black38,
                   splashColor: Colors.black87,
@@ -263,10 +244,9 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
   }
 }
 
-/// Sidebar model Widget the we used it inside the ListView with inkwell to make each item clickable
-
+/// Sidebar item widget that we use inside the ListView with InkWell to make each item clickable
 Widget sideBarItem({
-  required IconData icon,
+  required String image,
   required String text,
   required double width,
   required double widthSwitch,
@@ -297,8 +277,8 @@ Widget sideBarItem({
           clipBehavior: Clip.antiAliasWithSaveLayer,
           scrollDirection: Axis.horizontal,
           children: [
-            Icon(
-              icon,
+            ImageIcon(
+              AssetImage(image),
               color: unselectedIconColor,
             ),
             if (width >= widthSwitch && !minimize)
@@ -318,17 +298,15 @@ Widget sideBarItem({
   );
 }
 
-///Sidebar model contains two icon data and string for the text main Icon can't be null but unselected icon can be null and in this case it will be the main Icon
-
-/// Sidebar model
+/// Sidebar model contains image paths instead of icons
 class SideBarItem {
-  final IconData iconSelected;
-  final IconData? iconUnselected;
+  final String imageSelected;
+  final String? imageUnselected;
   final String text;
 
   SideBarItem({
-    required this.iconSelected,
-    this.iconUnselected,
+    required this.imageSelected,
+    this.imageUnselected,
     required this.text,
   });
 }
