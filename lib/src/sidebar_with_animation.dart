@@ -228,7 +228,7 @@ Widget sideBarItem({
         ),
         padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center, // Centered vertically
           children: [
             Padding(
               padding: const EdgeInsets.all(12),
@@ -243,9 +243,7 @@ Widget sideBarItem({
                 child: Text(
                   text,
                   style: textStyle.copyWith(
-                    color: isSelected
-                        ? selectedIconColor
-                        : unSelectedTextColor,
+                    color: isSelected ? selectedIconColor : unSelectedTextColor,
                   ),
                   textAlign: TextAlign.left,
                   softWrap: true,
