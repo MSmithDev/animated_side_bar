@@ -19,7 +19,6 @@ class SideBarAnimated extends StatefulWidget {
   double widthSwitch;
   double borderRadius;
   double sideBarWidth;
-  // double sideBarItemHeight;
   double sideBarSmallWidth;
   Widget mainLogoImage;
   List<SideBarItem> sidebarItems;
@@ -61,7 +60,7 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
     with SingleTickerProviderStateMixin {
   late double _width;
   late double _height;
-  late double sideBarItemHeight = 48;
+  late double sideBarItemHeight = 60; // Increased height to accommodate wrapping text
   double _itemIndex = 0.0;
   bool _minimize = false;
   late AnimationController _animationController;
@@ -85,6 +84,7 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
 
   @override
   void dispose() {
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -98,8 +98,8 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
 
   @override
   Widget build(BuildContext context) {
-    _height = MediaQuery.sizeOf(context).height;
-    _width = MediaQuery.sizeOf(context).width;
+    _height = MediaQuery.of(context).size.height;
+    _width = MediaQuery.of(context).size.width;
 
     /// Using animated container for the side bar for smooth responsiveness
     return AnimatedContainer(
@@ -137,84 +137,85 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
                   bottom: 24),
               child: Column(
                 children: [
-                  SizedBox(
-                    height: 786.0,
-                    child: Stack(
-                      children: [
-                        ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            return sideBarItem(
-                              textStyle: widget.textStyle,
-                              unselectedIconColor: widget.unselectedIconColor,
-                              unSelectedTextColor: widget.unSelectedTextColor,
-                              widthSwitch: widget.widthSwitch,
-                              minimize: _minimize,
-                              height: sideBarItemHeight,
-                              hoverColor: widget.hoverColor,
-                              splashColor: widget.splashColor,
-                              highlightColor: widget.highlightColor,
-                              width: _width,
-                              image: widget.sidebarItems[index]
-                                      .imageUnselected ??
-                                  widget.sidebarItems[index].imageSelected,
-                              text: widget.sidebarItems[index].text,
-                              onTap: () => moveToNewIndex(index),
+                  Stack(
+                    children: [
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return sideBarItem(
+                            textStyle: widget.textStyle,
+                            unselectedIconColor: widget.unselectedIconColor,
+                            unSelectedTextColor: widget.unSelectedTextColor,
+                            widthSwitch: widget.widthSwitch,
+                            minimize: _minimize,
+                            hoverColor: widget.hoverColor,
+                            splashColor: widget.splashColor,
+                            highlightColor: widget.highlightColor,
+                            width: _width,
+                            image: widget.sidebarItems[index]
+                                    .imageUnselected ??
+                                widget.sidebarItems[index].imageSelected,
+                            text: widget.sidebarItems[index].text,
+                            onTap: () => moveToNewIndex(index),
+                          );
+                        },
+                        separatorBuilder: (context, index) {
+                          if (index == widget.sidebarItems.length - 2 &&
+                              widget.settingsDivider) {
+                            return Divider(
+                              height: 12,
+                              thickness: 0.2,
+                              color: widget.dividerColor,
                             );
-                          },
-                          separatorBuilder: (context, index) {
-                            if (index == widget.sidebarItems.length - 2 &&
-                                widget.settingsDivider) {
-                              return Divider(
-                                height: 12,
-                                thickness: 0.2,
-                                color: widget.dividerColor,
-                              );
-                            } else {
-                              return const SizedBox(
-                                height: 8,
-                              );
-                            }
-                          },
-                          itemCount: widget.sidebarItems.length,
-                        ),
-                        AnimatedAlign(
-                          alignment: Alignment(0, -1 - (-0.152 * _itemIndex)),
-                          duration: widget.floatingAnimationDuration,
-                          curve: widget.curve,
-                          child: Container(
-                            height: sideBarItemHeight,
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                                color: widget.animatedContainerColor,
-                                borderRadius: BorderRadius.circular(12)),
-                            child: Row(
-                              children: [
-                                SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: widget
-                                      .sidebarItems[_itemIndex.floor()]
-                                      .imageSelected,
-                                ),
-                                if (_width >= widget.widthSwitch && !_minimize)
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.only(left: 12.0),
+                          } else {
+                            return const SizedBox(
+                              height: 8,
+                            );
+                          }
+                        },
+                        itemCount: widget.sidebarItems.length,
+                      ),
+                      AnimatedPositioned(
+                        duration: widget.floatingAnimationDuration,
+                        curve: widget.curve,
+                        top: computeIndicatorTopPosition(_itemIndex.floor()),
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                              color: widget.animatedContainerColor,
+                              borderRadius: BorderRadius.circular(12)),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: widget
+                                    .sidebarItems[_itemIndex.floor()]
+                                    .imageSelected,
+                              ),
+                              if (_width >= widget.widthSwitch && !_minimize)
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 12.0),
                                     child: Text(
                                       widget.sidebarItems[_itemIndex.floor()]
                                           .text,
-                                      overflow: TextOverflow.ellipsis,
                                       style: widget.textStyle,
+                                      softWrap: true,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                              ],
-                            ),
+                                ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -235,14 +236,26 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
                   width: 24,
                   height: 24,
                   child: _width >= widget.widthSwitch && _minimize
-                      ? Image.asset('lib/images/icons/right.png') // Pass your minimize icon here
-                      : Image.asset('lib/images/icons/left.png'), // Pass your maximize icon here
+                      ? Image.asset(
+                          'lib/images/icons/right.png') // Pass your minimize icon here
+                      : Image.asset(
+                          'lib/images/icons/left.png'), // Pass your maximize icon here
                 ),
               ),
             )
         ],
       ),
     );
+  }
+
+  // Compute the top position of the floating indicator
+  double computeIndicatorTopPosition(int index) {
+    double topPosition = 0;
+    for (int i = 0; i < index; i++) {
+      topPosition += sideBarItemHeight; // Height of each item
+      topPosition += 8; // Height from the SizedBox in separatorBuilder
+    }
+    return topPosition + index * 8; // Additional padding if any
   }
 }
 
@@ -253,7 +266,6 @@ Widget sideBarItem({
   required double width,
   required double widthSwitch,
   required bool minimize,
-  required double height,
   required Color hoverColor,
   required Color unselectedIconColor,
   required Color splashColor,
@@ -271,9 +283,10 @@ Widget sideBarItem({
       hoverColor: hoverColor,
       splashColor: splashColor,
       highlightColor: highlightColor,
-      child: SizedBox(
-        height: height,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: const EdgeInsets.all(12),
@@ -287,9 +300,11 @@ Widget sideBarItem({
               Expanded(
                 child: Text(
                   text,
-                  overflow: TextOverflow.clip,
                   style: textStyle.copyWith(color: unSelectedTextColor),
                   textAlign: TextAlign.left,
+                  softWrap: true,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
           ],
