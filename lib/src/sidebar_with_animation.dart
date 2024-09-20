@@ -7,8 +7,7 @@ class SideBarAnimated extends StatefulWidget {
   final ValueChanged<int>? onTap;
   Color sideBarColor;
   Duration sideBarAnimationDuration;
-  Duration floatingAnimationDuration;
-  Color animatedContainerColor;
+  Color selectedItemColor;
   Color selectedIconColor;
   Color unselectedIconColor;
   Color dividerColor;
@@ -29,7 +28,7 @@ class SideBarAnimated extends StatefulWidget {
   SideBarAnimated({
     super.key,
     this.sideBarColor = const Color(0xff1D1D1D),
-    this.animatedContainerColor = const Color(0xff323232),
+    this.selectedItemColor = const Color(0xff323232),
     this.unSelectedTextColor = const Color(0xffA0A5A9),
     this.selectedIconColor = Colors.white,
     this.unselectedIconColor = const Color(0xffA0A5A9),
@@ -42,7 +41,6 @@ class SideBarAnimated extends StatefulWidget {
     this.settingsDivider = true,
     this.curve = Curves.easeOut,
     this.sideBarAnimationDuration = const Duration(milliseconds: 700),
-    this.floatingAnimationDuration = const Duration(milliseconds: 500),
     this.dividerColor = const Color(0xff929292),
     this.textStyle = const TextStyle(
         fontFamily: "SFPro", fontSize: 16, color: Colors.white),
@@ -61,37 +59,21 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
   late double _width;
   late double _height;
   late double sideBarItemHeight = 60; // Increased height to accommodate wrapping text
-  double _itemIndex = 0.0;
+  int _selectedIndex = 0;
   bool _minimize = false;
-  late AnimationController _animationController;
-  late Animation<double> _floating;
 
   @override
   void initState() {
     if (widget.sidebarItems.isEmpty) {
       throw "Side bar Items can't be empty";
     }
-    _animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 200))
-      ..addListener(() {
-        setState(() {});
-      });
-
-    _floating = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
-        parent: _animationController, curve: Curves.fastOutSlowIn));
     super.initState();
   }
 
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  /// Animation creator function
+  /// Function to handle item tap
   void moveToNewIndex(int index) {
     setState(() {
-      _itemIndex = index.toDouble();
+      _selectedIndex = index;
     });
     widget.onTap?.call(index);
   }
@@ -137,85 +119,46 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
                   bottom: 24),
               child: Column(
                 children: [
-                  Stack(
-                    children: [
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return sideBarItem(
-                            textStyle: widget.textStyle,
-                            unselectedIconColor: widget.unselectedIconColor,
-                            unSelectedTextColor: widget.unSelectedTextColor,
-                            widthSwitch: widget.widthSwitch,
-                            minimize: _minimize,
-                            hoverColor: widget.hoverColor,
-                            splashColor: widget.splashColor,
-                            highlightColor: widget.highlightColor,
-                            width: _width,
-                            image: widget.sidebarItems[index]
-                                    .imageUnselected ??
-                                widget.sidebarItems[index].imageSelected,
-                            text: widget.sidebarItems[index].text,
-                            onTap: () => moveToNewIndex(index),
-                          );
-                        },
-                        separatorBuilder: (context, index) {
-                          if (index == widget.sidebarItems.length - 2 &&
-                              widget.settingsDivider) {
-                            return Divider(
-                              height: 12,
-                              thickness: 0.2,
-                              color: widget.dividerColor,
-                            );
-                          } else {
-                            return const SizedBox(
-                              height: 8,
-                            );
-                          }
-                        },
-                        itemCount: widget.sidebarItems.length,
-                      ),
-                      AnimatedPositioned(
-                        duration: widget.floatingAnimationDuration,
-                        curve: widget.curve,
-                        top: computeIndicatorTopPosition(_itemIndex.floor()),
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                              color: widget.animatedContainerColor,
-                              borderRadius: BorderRadius.circular(12)),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: widget
-                                    .sidebarItems[_itemIndex.floor()]
-                                    .imageSelected,
-                              ),
-                              if (_width >= widget.widthSwitch && !_minimize)
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 12.0),
-                                    child: Text(
-                                      widget.sidebarItems[_itemIndex.floor()]
-                                          .text,
-                                      style: widget.textStyle,
-                                      softWrap: true,
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemBuilder: (context, index) {
+                      return sideBarItem(
+                        textStyle: widget.textStyle,
+                        unselectedIconColor: widget.unselectedIconColor,
+                        selectedIconColor: widget.selectedIconColor,
+                        unSelectedTextColor: widget.unSelectedTextColor,
+                        widthSwitch: widget.widthSwitch,
+                        minimize: _minimize,
+                        hoverColor: widget.hoverColor,
+                        splashColor: widget.splashColor,
+                        highlightColor: widget.highlightColor,
+                        width: _width,
+                        imageSelected: widget.sidebarItems[index].imageSelected,
+                        imageUnselected: widget.sidebarItems[index].imageUnselected ??
+                            widget.sidebarItems[index].imageSelected,
+                        text: widget.sidebarItems[index].text,
+                        onTap: () => moveToNewIndex(index),
+                        isSelected: index == _selectedIndex,
+                        selectedItemColor: widget.selectedItemColor,
+                        borderRadius: 12,
+                      );
+                    },
+                    separatorBuilder: (context, index) {
+                      if (index == widget.sidebarItems.length - 2 &&
+                          widget.settingsDivider) {
+                        return Divider(
+                          height: 12,
+                          thickness: 0.2,
+                          color: widget.dividerColor,
+                        );
+                      } else {
+                        return const SizedBox(
+                          height: 8,
+                        );
+                      }
+                    },
+                    itemCount: widget.sidebarItems.length,
                   ),
                 ],
               ),
@@ -247,43 +190,42 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
       ),
     );
   }
-
-  // Compute the top position of the floating indicator
-  double computeIndicatorTopPosition(int index) {
-    double topPosition = 0;
-    for (int i = 0; i < index; i++) {
-      topPosition += sideBarItemHeight; // Height of each item
-      topPosition += 8; // Height from the SizedBox in separatorBuilder
-    }
-    return topPosition + index * 8; // Additional padding if any
-  }
 }
 
 /// Sidebar item widget that we use inside the ListView with InkWell to make each item clickable
 Widget sideBarItem({
-  required Widget image,
+  required Widget imageSelected,
+  required Widget imageUnselected,
   required String text,
   required double width,
   required double widthSwitch,
   required bool minimize,
   required Color hoverColor,
   required Color unselectedIconColor,
+  required Color selectedIconColor,
   required Color splashColor,
   required Color highlightColor,
   required Color unSelectedTextColor,
   required Function() onTap,
   required TextStyle textStyle,
+  required bool isSelected,
+  required Color selectedItemColor,
+  required double borderRadius,
 }) {
   return Material(
     color: Colors.transparent,
-    borderRadius: BorderRadius.circular(12),
+    borderRadius: BorderRadius.circular(borderRadius),
     clipBehavior: Clip.antiAliasWithSaveLayer,
     child: InkWell(
       onTap: onTap,
       hoverColor: hoverColor,
       splashColor: splashColor,
       highlightColor: highlightColor,
-      child: Padding(
+      child: Container(
+        decoration: BoxDecoration(
+          color: isSelected ? selectedItemColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
         padding: const EdgeInsets.symmetric(vertical: 4.0),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -293,14 +235,18 @@ Widget sideBarItem({
               child: SizedBox(
                 width: 24,
                 height: 24,
-                child: image,
+                child: isSelected ? imageSelected : imageUnselected,
               ),
             ),
             if (width >= widthSwitch && !minimize)
               Expanded(
                 child: Text(
                   text,
-                  style: textStyle.copyWith(color: unSelectedTextColor),
+                  style: textStyle.copyWith(
+                    color: isSelected
+                        ? selectedIconColor
+                        : unSelectedTextColor,
+                  ),
                   textAlign: TextAlign.left,
                   softWrap: true,
                   maxLines: 2,
