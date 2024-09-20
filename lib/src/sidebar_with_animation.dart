@@ -235,8 +235,8 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
                   width: 24,
                   height: 24,
                   child: _width >= widget.widthSwitch && _minimize
-                      ? widget.minimizeIcon // Pass your minimize icon here
-                      : widget.maximizeIcon, // Pass your maximize icon here
+                      ? Image.asset('lib/images/FoxBot_Logo_v1.png') // Pass your minimize icon here
+                      : Image.asset('lib/images/FoxBot_Logo_v1.png'), // Pass your maximize icon here
                 ),
               ),
             )
