@@ -70,7 +70,7 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
   @override
   void initState() {
     if (widget.sidebarItems.isEmpty) {
-      throw "Side bar Items Can't be empty";
+      throw "Side bar Items can't be empty";
     }
     _animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 200))
@@ -88,7 +88,7 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
     super.dispose();
   }
 
-  ///Animation creator function
+  /// Animation creator function
   void moveToNewIndex(int index) {
     setState(() {
       _itemIndex = index.toDouble();
@@ -101,7 +101,7 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
     _height = MediaQuery.sizeOf(context).height;
     _width = MediaQuery.sizeOf(context).width;
 
-    ///using animated container for the side bar for smooth responsive
+    /// Using animated container for the side bar for smooth responsiveness
     return AnimatedContainer(
       curve: widget.curve,
       height: _height,
@@ -146,21 +146,22 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
                           physics: const NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
                             return sideBarItem(
-                                textStyle: widget.textStyle,
-                                unselectedIconColor: widget.unselectedIconColor,
-                                unSelectedTextColor: widget.unSelectedTextColor,
-                                widthSwitch: widget.widthSwitch,
-                                minimize: _minimize,
-                                height: sideBarItemHeight,
-                                hoverColor: widget.hoverColor,
-                                splashColor: widget.splashColor,
-                                highlightColor: widget.highlightColor,
-                                width: _width,
-                                image: widget.sidebarItems[index]
-                                        .imageUnselected ??
-                                    widget.sidebarItems[index].imageSelected,
-                                text: widget.sidebarItems[index].text,
-                                onTap: () => moveToNewIndex(index));
+                              textStyle: widget.textStyle,
+                              unselectedIconColor: widget.unselectedIconColor,
+                              unSelectedTextColor: widget.unSelectedTextColor,
+                              widthSwitch: widget.widthSwitch,
+                              minimize: _minimize,
+                              height: sideBarItemHeight,
+                              hoverColor: widget.hoverColor,
+                              splashColor: widget.splashColor,
+                              highlightColor: widget.highlightColor,
+                              width: _width,
+                              image: widget.sidebarItems[index]
+                                      .imageUnselected ??
+                                  widget.sidebarItems[index].imageSelected,
+                              text: widget.sidebarItems[index].text,
+                              onTap: () => moveToNewIndex(index),
+                            );
                           },
                           separatorBuilder: (context, index) {
                             if (index == widget.sidebarItems.length - 2 &&
@@ -188,21 +189,18 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
                             decoration: BoxDecoration(
                                 color: widget.animatedContainerColor,
                                 borderRadius: BorderRadius.circular(12)),
-                            child: ListView(
-                              shrinkWrap: false,
-                              clipBehavior: Clip.antiAliasWithSaveLayer,
-                              scrollDirection: Axis.horizontal,
+                            child: Row(
                               children: [
-                                ImageIcon(
-                                  AssetImage(widget.sidebarItems[
-                                          _itemIndex.floor()]
-                                      .imageSelected),
-                                  color: Colors.white,
+                                Image.asset(
+                                  widget
+                                      .sidebarItems[_itemIndex.floor()]
+                                      .imageSelected,
+                                  width: 24,
+                                  height: 24,
                                 ),
                                 if (_width >= widget.widthSwitch && !_minimize)
                                   Padding(
-                                    padding:
-                                        const EdgeInsets.only(left: 12.0),
+                                    padding: const EdgeInsets.only(left: 12.0),
                                     child: Text(
                                       widget.sidebarItems[_itemIndex.floor()]
                                           .text,
@@ -226,17 +224,21 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
               padding:
                   const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
               child: IconButton(
-                  hoverColor: Colors.black38,
-                  splashColor: Colors.black87,
-                  highlightColor: Colors.black,
-                  onPressed: () {
-                    setState(() => _minimize = !_minimize);
-                  },
-                  icon: Icon(
-                      _width >= widget.widthSwitch && _minimize
-                          ? CupertinoIcons.arrow_right
-                          : Icons.space_dashboard_outlined,
-                      color: widget.selectedIconColor)),
+                hoverColor: Colors.black38,
+                splashColor: Colors.black87,
+                highlightColor: Colors.black,
+                onPressed: () {
+                  setState(() => _minimize = !_minimize);
+                },
+                icon: Image.asset(
+                  _width >= widget.widthSwitch && _minimize
+                      ? 'assets/images/arrow_right.png' // Replace with your minimize icon image path
+                      : 'assets/images/space_dashboard_outlined.png', // Replace with your maximize icon image path
+                  width: 24,
+                  height: 24,
+                  color: widget.selectedIconColor, // Remove if not needed
+                ),
+              ),
             )
         ],
       ),
@@ -271,19 +273,19 @@ Widget sideBarItem({
       highlightColor: highlightColor,
       child: SizedBox(
         height: height,
-        child: ListView(
-          padding: const EdgeInsets.all(12),
-          shrinkWrap: true,
-          clipBehavior: Clip.antiAliasWithSaveLayer,
-          scrollDirection: Axis.horizontal,
+        child: Row(
           children: [
-            ImageIcon(
-              AssetImage(image),
-              color: unselectedIconColor,
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Image.asset(
+                image,
+                width: 24,
+                height: 24,
+                color: unselectedIconColor, // Remove if not needed
+              ),
             ),
             if (width >= widthSwitch && !minimize)
-              Padding(
-                padding: const EdgeInsets.only(left: 12.0),
+              Expanded(
                 child: Text(
                   text,
                   overflow: TextOverflow.clip,
