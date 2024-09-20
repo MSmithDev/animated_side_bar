@@ -21,7 +21,7 @@ class SideBarAnimated extends StatefulWidget {
   double sideBarWidth;
   // double sideBarItemHeight;
   double sideBarSmallWidth;
-  String mainLogoImage;
+  Widget mainLogoImage;
   List<SideBarItem> sidebarItems;
   bool settingsDivider;
   Curve curve;
@@ -45,8 +45,8 @@ class SideBarAnimated extends StatefulWidget {
     this.sideBarAnimationDuration = const Duration(milliseconds: 700),
     this.floatingAnimationDuration = const Duration(milliseconds: 500),
     this.dividerColor = const Color(0xff929292),
-    this.textStyle =
-        const TextStyle(fontFamily: "SFPro", fontSize: 16, color: Colors.white),
+    this.textStyle = const TextStyle(
+        fontFamily: "SFPro", fontSize: 16, color: Colors.white),
     required this.mainLogoImage,
     required this.sidebarItems,
     required this.widthSwitch,
@@ -121,10 +121,10 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
             padding: EdgeInsets.only(
                 left: _width >= widget.widthSwitch && !_minimize ? 20 : 18,
                 top: 24),
-            child: Image.asset(
-              widget.mainLogoImage,
+            child: SizedBox(
               width: 48,
               height: 48,
+              child: widget.mainLogoImage,
             ),
           ),
           Expanded(
@@ -191,16 +191,17 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
                                 borderRadius: BorderRadius.circular(12)),
                             child: Row(
                               children: [
-                                Image.asset(
-                                  widget
-                                      .sidebarItems[_itemIndex.floor()]
-                                      .imageSelected,
+                                SizedBox(
                                   width: 24,
                                   height: 24,
+                                  child: widget
+                                      .sidebarItems[_itemIndex.floor()]
+                                      .imageSelected,
                                 ),
                                 if (_width >= widget.widthSwitch && !_minimize)
                                   Padding(
-                                    padding: const EdgeInsets.only(left: 12.0),
+                                    padding:
+                                        const EdgeInsets.only(left: 12.0),
                                     child: Text(
                                       widget.sidebarItems[_itemIndex.floor()]
                                           .text,
@@ -230,13 +231,12 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
                 onPressed: () {
                   setState(() => _minimize = !_minimize);
                 },
-                icon: Image.asset(
-                  _width >= widget.widthSwitch && _minimize
-                      ? 'assets/images/arrow_right.png' // Replace with your minimize icon image path
-                      : 'assets/images/space_dashboard_outlined.png', // Replace with your maximize icon image path
+                icon: SizedBox(
                   width: 24,
                   height: 24,
-                  color: widget.selectedIconColor, // Remove if not needed
+                  child: _width >= widget.widthSwitch && _minimize
+                      ? widget.minimizeIcon // Pass your minimize icon here
+                      : widget.maximizeIcon, // Pass your maximize icon here
                 ),
               ),
             )
@@ -248,7 +248,7 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
 
 /// Sidebar item widget that we use inside the ListView with InkWell to make each item clickable
 Widget sideBarItem({
-  required String image,
+  required Widget image,
   required String text,
   required double width,
   required double widthSwitch,
@@ -277,11 +277,10 @@ Widget sideBarItem({
           children: [
             Padding(
               padding: const EdgeInsets.all(12),
-              child: Image.asset(
-                image,
+              child: SizedBox(
                 width: 24,
                 height: 24,
-                color: unselectedIconColor, // Remove if not needed
+                child: image,
               ),
             ),
             if (width >= widthSwitch && !minimize)
@@ -300,10 +299,10 @@ Widget sideBarItem({
   );
 }
 
-/// Sidebar model contains image paths instead of icons
+/// Sidebar model contains images as widgets instead of image paths
 class SideBarItem {
-  final String imageSelected;
-  final String? imageUnselected;
+  final Widget imageSelected;
+  final Widget? imageUnselected;
   final String text;
 
   SideBarItem({
