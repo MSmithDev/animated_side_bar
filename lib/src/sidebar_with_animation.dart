@@ -87,7 +87,7 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
     return AnimatedContainer(
       curve: widget.curve,
       height: _height,
-      margin: const EdgeInsets.all(20),
+      margin: const EdgeInsets.all(5),
       width: _width >= widget.widthSwitch && !_minimize
           ? widget.sideBarWidth
           : widget.sideBarSmallWidth,
