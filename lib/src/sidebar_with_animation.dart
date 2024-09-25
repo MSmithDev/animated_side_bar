@@ -180,9 +180,9 @@ class _SideBarAnimatedState extends State<SideBarAnimated>
                   height: 24,
                   child: _width >= widget.widthSwitch && _minimize
                       ? Image.asset(
-                          'lib/images/icons/right.png') // Pass your minimize icon here
+                          'assets/images/icons/right.png') // Pass your minimize icon here
                       : Image.asset(
-                          'lib/images/icons/left.png'), // Pass your maximize icon here
+                          'assets/images/icons/left.png'), // Pass your maximize icon here
                 ),
               ),
             )
